@@ -1,0 +1,68 @@
+This file contains documentation for archived code and data for 'Observed Changes in Interannual Precipitation
+Variability in the United States' by Ryan D. Harp and Daniel E. Horton (submitted to Geophysical Research Letters on
+June 18th, 2022). The following guide will detail the origin (whether downloaded or created) and purpose of files
+necessary to successfully recreate our analysis.
+
+
+Files downloaded and their initial location:
+- NEON domain shapefiles: https://www.neonscience.org/data-samples/data/spatial-data-maps (under Quick Downloads >
+    Domain Polygons)
+- GHCN station data and metadata: https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily
+- NCA region shapefiles: personal communication with NCA authors
+
+Scripts and their inputs/outputs:
+- ghcn_summarizer.py: this script loops through all stations listed in the ghcnd-stations.txt summary file and
+    compiles summary statistics and metadata on each station.
+    - input:
+        ghcnd-stations.txt (downloaded from GHCN portal)
+        ghcnd-stations_file_compare.csv (manually created by comparing available file list with list of stations in
+            metadata)
+        all available GHCN-D station csv files (downloaded from GHCN portal)
+    - output:
+        ghcn_summary.csv: list of all available stations and relevant metadata and summary statistics
+- station_NEON_assignment.py: this script loops through all stations in the summary/metadata file and determines which
+    NEON domain each station falls within.
+    - input:
+        ghcn_summary.csv (created by ghcn_summarizer.py)
+        NEON_Domains.shp (NEON domain shapefiles downloaded from neonscience.org)
+    - output:
+        US_stations_with_NEON.csv: list of all available stations within the US and relevant metadata/summary
+            statistics, including NEON domain
+- station_NCA_assignment.py: this script loops through all stations in the summary/metadata file and determines which
+    NEON domain each station falls within.
+    - input:
+        ghcn_summary.csv (created by ghcn_summarizer.py)
+        cb_2020_us_state_500k_ncaregions.shp (NCA region shapefiles from personal communication with NCA authors)
+    - output:
+        US_stations_with_NCA.csv: list of all available stations within the US and relevant metadata/summary
+            statistics, including NCA region
+- interannual_variability_stats.py: this script calculates trends and baselines in annual precipitation, precipitation
+    frequency, interannual variability, and relative interannual variability for each domain
+    - input:
+        all available GHCN-D station csv files (downloaded from GHCN portal)
+        US_stations_with_NEON.csv (created by station_NEON_assignment.py)
+    - output:
+        NEON_domain_precip_stats_start_year_*_window_length_*_domain_*.csv: domain-specific results for trends and
+            and baselines that are manually combined into a merged file
+- interannual_variability_stats_NCA.py: this script calculates trends and baselines in annual precipitation,
+    precipitation frequency, interannual variability, and relative interannual variability for each domain
+    - input:
+        all available GHCN-D station csv files (downloaded from GHCN portal)
+        US_stations_with_NCA.csv (created by station_NEON_assignment.py)
+    - output:
+        NCA_region_precip_stats_start_year_*_window_length_*_domain_*.csv: domain-specific results for trends and
+            and baselines that are manually combined into a merged file
+- precipitation_variability_plots.py: this script produces all figures for article
+    - input:
+        NEON_Domains.shp (NEON domain shapefiles downloaded from neonscience.org)
+        cb_2020_us_state_500k_ncaregions.shp (NCA region shapefiles from personal communication with NCA authors)
+        NEON_domain_precip_stats_start_year_1970_window_length_11_domain__merged.csv
+            (created manually from results of *** daily_precip_block_bootstrap_calculations_NEON.py)
+        NCA_domain_precip_stats_start_year_1970_window_length_11_region__merged.csv
+            (created manually from results of *** daily_precip_block_bootstrap_calculations_NEON.py)
+        NEON_domain_precip_stats_start_year_1950_window_length_11_domain__merged.csv
+            (created manually from results of *** daily_precip_block_bootstrap_calculations_NEON.py)
+        NCA_domain_precip_stats_start_year_1950_window_length_11_region__merged.csv
+            (created manually from results of *** daily_precip_block_bootstrap_calculations_NEON.py)
+    - output:
+        Figures 1-3, S1-S9
